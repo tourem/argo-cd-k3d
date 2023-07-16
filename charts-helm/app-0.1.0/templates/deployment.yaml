@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app-web.fullname" . }}-deployment
+  labels:
+    app: argocdrocks
+  {{- include "app-web.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: argocdrocks
+    {{- include "app-web.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: argocdrocks
+      {{- include "app-web.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.deployment.argocdrocksNginy.image.repository }}:{{ .Values.deployment.argocdrocksNginy.image.tag
+          | default .Chart.AppVersion }}
+        name: argocdrocks-nginy
+        ports:
+        - containerPort: 80
+        resources: {}
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: website-cm-volume
+      volumes:
+      - configMap:
+          name: {{ include "app-web.fullname" . }}-cm
+        name: website-cm-volume

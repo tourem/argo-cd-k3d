@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app-web.fullname" . }}-cm
+  labels:
+    app: argocdrocks
+  {{- include "app-web.labels" . | nindent 4 }}
+data:
+  index.html: {{ .Values.cm.indexHtml | toYaml | indent 1 }}

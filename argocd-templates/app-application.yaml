@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: argocdrocks
+  name: argocdrocks-app
+spec:
+  project: argocdrocks-project
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+  sources:
+    - repoURL: 'http://host.k3d.internal:8089/api/v4/projects/2/packages/helm/stable'
+      chart: app-web
+      targetRevision: 0.1.0
+      helm:
+        valueFiles:
+          - $values/dev/values-env.yaml
+          - $values/dev/values-app.yaml
+    - repoURL: 'http://host.k3d.internal:8089/larbotech/app-values.git'
+      targetRevision: main
+      ref: values
